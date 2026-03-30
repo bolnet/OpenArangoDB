@@ -20,7 +20,10 @@ class VectorSearch:
         self._db = db
         self._model_name = model_name
         self._embedding_fn: Any = None
-        self._ensure_embedding_fn()
+        try:
+            self._ensure_embedding_fn()
+        except ImportError:
+            logger.info("sentence-transformers not installed — embedding deferred until needed")
 
         # In-memory cache for numpy cosine search
         self._cache_ids: list[str] = []
