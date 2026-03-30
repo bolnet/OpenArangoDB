@@ -143,6 +143,50 @@ openarangodb version        # Show version
 openarangodb encrypt-check  # Check encryption status
 ```
 
+## Integrate into Any Project
+
+### Python Library
+
+```bash
+pip install OpenArangoDB
+```
+
+```python
+from open_arangodb import ArangoDB, Memory
+
+# 1. Connect (audit + CDC enabled by default)
+db = ArangoDB(host="http://localhost:8529", database="myapp")
+
+# 2. Store memories
+mem = Memory(id="m1", content="User prefers dark mode", tags=["pref"])
+db.insert(mem)
+
+# 3. Search
+results = db.search("display preferences", limit=10)
+
+# 4. Supersede when facts change
+db.supersede("m1", Memory(id="m2", content="Switched to light mode"))
+
+# 5. Get CDC changelog
+changes = db.get_changes()
+```
+
+### As a Dependency
+
+Add to your `pyproject.toml`:
+
+```toml
+dependencies = [
+    "OpenArangoDB>=0.1.0",
+]
+```
+
+Or `requirements.txt`:
+
+```
+OpenArangoDB[all]>=0.1.0
+```
+
 ## Quick Start
 
 ### Connect
@@ -347,6 +391,86 @@ db = ArangoDB(host="http://localhost:8529", database="myapp", backup_enabled=Tru
 config = BackupConfig(output_dir="/backups/myapp", database="myapp")
 result = db.create_backup(config)
 print(result.path, result.size_bytes)
+```
+
+## Testing
+
+### Run the Test Suite
+
+```bash
+# Install with dev dependencies
+pip install "OpenArangoDB[dev]"
+
+# Run all 253 tests
+pytest tests/ -v
+
+# Run with coverage report
+pytest tests/ --cov=open_arangodb --cov-report=term-missing
+
+# Run specific modules
+pytest tests/cdc/ -v
+pytest tests/mcp/ -v
+pytest tests/vector/ -v
+```
+
+### Write Integration Tests for Your Project
+
+```python
+import pytest
+from open_arangodb import ArangoDB, Memory
+
+@pytest.fixture
+def db():
+    db = ArangoDB(host="http://localhost:8529", database="test_db")
+    yield db
+    db.reset()
+    db.close()
+
+def test_insert_and_retrieve(db):
+    mem = Memory(id="t1", content="test memory", tags=["test"])
+    db.insert(mem)
+    result = db.get("t1")
+    assert result.content == "test memory"
+
+def test_cdc_tracks_changes(db):
+    mem = Memory(id="t2", content="tracked")
+    db.insert(mem)
+    changes = db.get_changes()
+    assert len(changes) >= 1
+    assert changes[0].op.value == "insert"
+
+def test_supersede_creates_chain(db):
+    old = Memory(id="t3", content="v1")
+    db.insert(old)
+    new = Memory(id="t4", content="v2")
+    db.supersede("t3", new)
+    updated = db.get("t3")
+    assert updated.superseded_by == "t4"
+```
+
+### Test the MCP Server
+
+```bash
+# Test MCP handshake
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | openarangodb serve
+
+# List available tools
+printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}\n{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}\n' \
+  | openarangodb serve
+
+# Call a tool
+printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}\n{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"encryption_check","arguments":{}}}\n' \
+  | openarangodb serve
+```
+
+### Verify Health
+
+```bash
+# Check ArangoDB is reachable
+openarangodb health
+
+# Check encryption at rest
+openarangodb encrypt-check
 ```
 
 ## Architecture
