@@ -46,10 +46,14 @@ dev = [
     "mypy>=1.8",
 ]
 
+[project.scripts]
+openarangodb = "open_arangodb.cli:main"
+openarangodb-mcp = "open_arangodb.mcp.__main__:main"
+
 [project.urls]
-Homepage = "https://github.com/aarjay/OpenArangoDB"
-Repository = "https://github.com/aarjay/OpenArangoDB"
-Issues = "https://github.com/aarjay/OpenArangoDB/issues"
+Homepage = "https://github.com/bolnet/OpenArangoDB"
+Repository = "https://github.com/bolnet/OpenArangoDB"
+Issues = "https://github.com/bolnet/OpenArangoDB/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/open_arangodb"]

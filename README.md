@@ -47,22 +47,101 @@ OpenArangoDB implements these at the application layer. You get the same capabil
 pip install OpenArangoDB
 
 # With vector search (BAAI/bge-m3 embeddings)
-pip install OpenArangoDB[embeddings]
+pip install "OpenArangoDB[embeddings]"
+
+# With MCP server support
+pip install "OpenArangoDB[mcp]"
 
 # With Redis event bus
-pip install OpenArangoDB[events-redis]
-
-# With NATS event bus
-pip install OpenArangoDB[events-nats]
+pip install "OpenArangoDB[events-redis]"
 
 # With LDAP auth
-pip install OpenArangoDB[auth]
+pip install "OpenArangoDB[auth]"
 
 # Everything
-pip install OpenArangoDB[all]
+pip install "OpenArangoDB[all]"
 ```
 
 Requires Python 3.10+ and ArangoDB 3.12+ (Community Edition).
+
+## Use as MCP Server (Claude Code / AI Agents)
+
+### Option 1: pip install + stdio
+
+```bash
+pip install "OpenArangoDB[mcp]"
+```
+
+Add to `~/.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "openarangodb": {
+      "command": "openarangodb",
+      "args": ["serve"],
+      "env": {
+        "ARANGODB_HOST": "http://localhost:8529",
+        "ARANGODB_DATABASE": "argondb",
+        "ARANGODB_USERNAME": "root",
+        "ARANGODB_PASSWORD": ""
+      }
+    }
+  }
+}
+```
+
+### Option 2: Docker
+
+```bash
+docker build -t openarangodb .
+```
+
+```json
+{
+  "mcpServers": {
+    "openarangodb": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "openarangodb:latest"],
+      "env": {
+        "ARANGODB_HOST": "http://host.docker.internal:8529"
+      }
+    }
+  }
+}
+```
+
+### Option 3: Docker Compose (ArangoDB + MCP server)
+
+```bash
+docker compose up -d
+```
+
+This starts both ArangoDB and the OpenArangoDB MCP server.
+
+### MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `memory_insert` | Insert a new memory |
+| `memory_get` | Retrieve a memory by ID |
+| `memory_search` | Vector similarity search |
+| `memory_update` | Update an existing memory |
+| `memory_delete` | Soft-delete a memory |
+| `memory_supersede` | Replace a memory with a newer version |
+| `retrieval_search` | Multi-layer search with RRF fusion |
+| `audit_query` | Query audit logs |
+| `changes_since` | Get CDC change events since a revision |
+| `encryption_check` | Check encryption at rest status |
+
+## CLI
+
+```bash
+openarangodb serve          # Start MCP server (stdio)
+openarangodb health         # Check ArangoDB connection
+openarangodb version        # Show version
+openarangodb encrypt-check  # Check encryption status
+```
 
 ## Quick Start
 
