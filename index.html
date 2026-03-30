@@ -693,6 +693,8 @@ footer {
       <a href="#quickstart">Quick Start</a>
       <a href="#benchmarks">Benchmarks</a>
       <a href="#architecture">Architecture</a>
+      <a href="#integrate">Integrate</a>
+      <a href="#testing">Testing</a>
     </div>
   </div>
 </nav>
@@ -996,6 +998,280 @@ db.<span class="fn">supersede</span>(<span class="str">"m1"</span>, new, scope=s
       <div class="arch-label">Database</div>
       <div><span class="arch-db">ArangoDB Community 3.12+</span></div>
     </div>
+  </div>
+</section>
+
+<!-- ── Integration ── -->
+<section class="code-section reveal" id="integrate">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Integration Guide</div>
+      <h2 class="section-title">Add to <em>any project</em> in minutes</h2>
+    </div>
+
+    <!-- Python / pip -->
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">Python Library</h3>
+    <div class="code-block" style="margin-bottom: 2.5rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">terminal</span>
+      </div>
+      <div class="code-body">
+<pre><span class="cm"># Core</span>
+pip install OpenArangoDB
+
+<span class="cm"># With all optional features</span>
+pip install <span class="str">"OpenArangoDB[all]"</span>
+
+<span class="cm"># Just MCP server support</span>
+pip install <span class="str">"OpenArangoDB[mcp]"</span></pre>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin-bottom: 3rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">app.py</span>
+      </div>
+      <div class="code-body">
+<pre><span class="kw">from</span> open_arangodb <span class="kw">import</span> ArangoDB, Memory, AgentScope
+
+<span class="cm"># 1. Connect (audit + CDC enabled by default)</span>
+db = <span class="fn">ArangoDB</span>(host=<span class="str">"http://localhost:8529"</span>, database=<span class="str">"myapp"</span>)
+
+<span class="cm"># 2. Store memories</span>
+mem = <span class="fn">Memory</span>(id=<span class="str">"m1"</span>, content=<span class="str">"User prefers dark mode"</span>, tags=[<span class="str">"pref"</span>])
+db.<span class="fn">insert</span>(mem)
+
+<span class="cm"># 3. Search</span>
+results = db.<span class="fn">search</span>(<span class="str">"display preferences"</span>, limit=<span class="num">10</span>)
+
+<span class="cm"># 4. Supersede when facts change</span>
+db.<span class="fn">supersede</span>(<span class="str">"m1"</span>, <span class="fn">Memory</span>(id=<span class="str">"m2"</span>, content=<span class="str">"Switched to light mode"</span>))
+
+<span class="cm"># 5. Get CDC changelog</span>
+changes = db.<span class="fn">get_changes</span>()</pre>
+      </div>
+    </div>
+
+    <!-- MCP Server -->
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">MCP Server <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent); vertical-align: middle; margin-left: 0.5rem;">CLAUDE CODE / AI AGENTS</span></h3>
+    <div class="code-block" style="margin-bottom: 2.5rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">~/.claude/settings.json</span>
+      </div>
+      <div class="code-body">
+<pre>{
+  <span class="str">"mcpServers"</span>: {
+    <span class="str">"openarangodb"</span>: {
+      <span class="str">"command"</span>: <span class="str">"openarangodb"</span>,
+      <span class="str">"args"</span>: [<span class="str">"serve"</span>],
+      <span class="str">"env"</span>: {
+        <span class="str">"ARANGODB_HOST"</span>: <span class="str">"http://localhost:8529"</span>,
+        <span class="str">"ARANGODB_DATABASE"</span>: <span class="str">"myapp"</span>
+      }
+    }
+  }
+}</pre>
+      </div>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+      This exposes 10 tools to your AI agent: <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">memory_insert</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">memory_get</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">memory_search</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">memory_update</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">memory_delete</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">memory_supersede</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">retrieval_search</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">audit_query</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">changes_since</code>,
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.82rem;">encryption_check</code>.
+    </p>
+
+    <!-- Docker -->
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">Docker</h3>
+    <div class="code-block" style="margin-bottom: 2.5rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">terminal</span>
+      </div>
+      <div class="code-body">
+<pre><span class="cm"># Run ArangoDB + OpenArangoDB MCP server together</span>
+docker compose up -d
+
+<span class="cm"># Or build and run standalone</span>
+docker build -t openarangodb .
+docker run -i --rm \
+  -e ARANGODB_HOST=<span class="str">http://host.docker.internal:8529</span> \
+  openarangodb</pre>
+      </div>
+    </div>
+
+    <!-- Docker MCP config -->
+    <div class="code-block" style="margin-bottom: 2.5rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">~/.claude/settings.json (Docker)</span>
+      </div>
+      <div class="code-body">
+<pre>{
+  <span class="str">"mcpServers"</span>: {
+    <span class="str">"openarangodb"</span>: {
+      <span class="str">"command"</span>: <span class="str">"docker"</span>,
+      <span class="str">"args"</span>: [<span class="str">"run"</span>, <span class="str">"-i"</span>, <span class="str">"--rm"</span>, <span class="str">"openarangodb:latest"</span>],
+      <span class="str">"env"</span>: {
+        <span class="str">"ARANGODB_HOST"</span>: <span class="str">"http://host.docker.internal:8529"</span>
+      }
+    }
+  }
+}</pre>
+      </div>
+    </div>
+
+    <!-- CLI -->
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">CLI</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">terminal</span>
+      </div>
+      <div class="code-body">
+<pre><span class="cm"># Start MCP server over stdio</span>
+openarangodb serve
+
+<span class="cm"># Check ArangoDB connection</span>
+openarangodb health
+
+<span class="cm"># Check encryption at rest status</span>
+openarangodb encrypt-check
+
+<span class="cm"># Show version</span>
+openarangodb version</pre>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Testing ── -->
+<section class="code-section reveal" id="testing">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Testing</div>
+      <h2 class="section-title">Verify it works, <em>every time</em></h2>
+    </div>
+
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">Run the test suite</h3>
+    <div class="code-block" style="margin-bottom: 2.5rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">terminal</span>
+      </div>
+      <div class="code-body">
+<pre><span class="cm"># Install with dev dependencies</span>
+pip install <span class="str">"OpenArangoDB[dev]"</span>
+
+<span class="cm"># Run all 253 tests</span>
+pytest tests/ -v
+
+<span class="cm"># Run with coverage report</span>
+pytest tests/ --cov=open_arangodb --cov-report=term-missing
+
+<span class="cm"># Run a specific module's tests</span>
+pytest tests/cdc/ -v
+pytest tests/mcp/ -v
+pytest tests/vector/ -v</pre>
+      </div>
+    </div>
+
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">Test in your own project</h3>
+    <div class="code-block" style="margin-bottom: 2.5rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">test_integration.py</span>
+      </div>
+      <div class="code-body">
+<pre><span class="kw">import</span> pytest
+<span class="kw">from</span> open_arangodb <span class="kw">import</span> ArangoDB, Memory
+
+<span class="kw">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">db</span>():
+    db = <span class="fn">ArangoDB</span>(
+        host=<span class="str">"http://localhost:8529"</span>,
+        database=<span class="str">"test_db"</span>,
+    )
+    <span class="kw">yield</span> db
+    db.<span class="fn">reset</span>()   <span class="cm"># Clean up after each test</span>
+    db.<span class="fn">close</span>()
+
+<span class="kw">def</span> <span class="fn">test_insert_and_retrieve</span>(db):
+    mem = <span class="fn">Memory</span>(id=<span class="str">"t1"</span>, content=<span class="str">"test memory"</span>, tags=[<span class="str">"test"</span>])
+    db.<span class="fn">insert</span>(mem)
+    result = db.<span class="fn">get</span>(<span class="str">"t1"</span>)
+    <span class="kw">assert</span> result.content == <span class="str">"test memory"</span>
+
+<span class="kw">def</span> <span class="fn">test_cdc_tracks_changes</span>(db):
+    mem = <span class="fn">Memory</span>(id=<span class="str">"t2"</span>, content=<span class="str">"tracked"</span>)
+    db.<span class="fn">insert</span>(mem)
+    changes = db.<span class="fn">get_changes</span>()
+    <span class="kw">assert</span> <span class="fn">len</span>(changes) >= <span class="num">1</span>
+    <span class="kw">assert</span> changes[<span class="num">0</span>].op.value == <span class="str">"insert"</span>
+
+<span class="kw">def</span> <span class="fn">test_supersede_creates_chain</span>(db):
+    old = <span class="fn">Memory</span>(id=<span class="str">"t3"</span>, content=<span class="str">"v1"</span>)
+    db.<span class="fn">insert</span>(old)
+    new = <span class="fn">Memory</span>(id=<span class="str">"t4"</span>, content=<span class="str">"v2"</span>)
+    db.<span class="fn">supersede</span>(<span class="str">"t3"</span>, new)
+    updated = db.<span class="fn">get</span>(<span class="str">"t3"</span>)
+    <span class="kw">assert</span> updated.superseded_by == <span class="str">"t4"</span></pre>
+      </div>
+    </div>
+
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">Test the MCP server</h3>
+    <div class="code-block" style="margin-bottom: 2.5rem;">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">terminal</span>
+      </div>
+      <div class="code-body">
+<pre><span class="cm"># Test MCP handshake</span>
+echo <span class="str">'{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'</span> | openarangodb serve
+
+<span class="cm"># List available tools</span>
+printf <span class="str">'{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}\n{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}\n'</span> \
+  | openarangodb serve
+
+<span class="cm"># Call a tool directly</span>
+printf <span class="str">'{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}\n{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"encryption_check","arguments":{}}}\n'</span> \
+  | openarangodb serve</pre>
+      </div>
+    </div>
+
+    <h3 style="font-family: var(--serif); color: var(--heading); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem;">Verify health</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+        <span style="margin-left: 0.5rem;">terminal</span>
+      </div>
+      <div class="code-body">
+<pre><span class="cm"># Check ArangoDB is reachable and responding</span>
+openarangodb health
+
+<span class="cm"># Expected output:</span>
+<span class="cm"># {</span>
+<span class="cm">#   "status": "healthy",</span>
+<span class="cm">#   "host": "http://localhost:8529",</span>
+<span class="cm">#   "database": "argondb",</span>
+<span class="cm">#   "arangodb_version": "3.12.x"</span>
+<span class="cm"># }</span>
+
+<span class="cm"># Check encryption at rest</span>
+openarangodb encrypt-check</pre>
+      </div>
+    </div>
+
   </div>
 </section>
 
