@@ -113,12 +113,15 @@ class DocumentStore:
         self._col.update(doc)
         return memory
 
-    def get(self, memory_id: str) -> Memory | None:
-        cursor = self._db.aql.execute(
-            "FOR doc IN memories FILTER doc.memory_id == @mid AND doc._deleted != true "
-            "LIMIT 1 RETURN doc",
-            bind_vars={"mid": memory_id},
-        )
+    def get(self, memory_id: str, include_deleted: bool = False) -> Memory | None:
+        if include_deleted:
+            query = "FOR doc IN memories FILTER doc.memory_id == @mid LIMIT 1 RETURN doc"
+        else:
+            query = (
+                "FOR doc IN memories FILTER doc.memory_id == @mid "
+                "AND doc._deleted != true LIMIT 1 RETURN doc"
+            )
+        cursor = self._db.aql.execute(query, bind_vars={"mid": memory_id})
         docs = list(cursor)
         return self._doc_to_memory(docs[0]) if docs else None
 
@@ -142,8 +145,12 @@ class DocumentStore:
         entity: str | None = None,
         scope: AgentScope | None = None,
         limit: int = 50,
+        include_deleted: bool = False,
     ) -> list[Memory]:
-        filters = ["doc._deleted != true", "doc.status == 'active'"]
+        filters: list[str] = []
+        if not include_deleted:
+            filters.append("doc._deleted != true")
+            filters.append("doc.status == 'active'")
         bind_vars: dict[str, Any] = {"lim": limit}
 
         if entity:
@@ -157,7 +164,7 @@ class DocumentStore:
                 filters.append("doc.scope_workflow_id == @wf_id")
                 bind_vars["wf_id"] = scope.workflow_id
 
-        where = " AND ".join(filters)
+        where = " AND ".join(filters) if filters else "true"
         query = f"FOR doc IN memories FILTER {where} LIMIT @lim RETURN doc"
         cursor = self._db.aql.execute(query, bind_vars=bind_vars)
         return [self._doc_to_memory(doc) for doc in cursor]

@@ -49,7 +49,7 @@ class SatelliteCache:
     def sync(self) -> int:
         """Refresh cache from ArangoDB. Returns count synced."""
         col = self._db.collection(self._config.collection)
-        docs = col.all()  # MockCollection.all() returns list
+        docs = list(col.all())  # materialize cursor (real arango driver) or list (mock)
         with self._lock:
             self._cache = {d["_key"]: d for d in docs[: self._config.max_size]}
             self._last_sync = datetime.now(timezone.utc).isoformat()

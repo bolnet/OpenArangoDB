@@ -267,7 +267,7 @@ class MockDatabase:
             self._collections[name] = MockCollection(name)
         return self._collections[name]
 
-    def delete_collection(self, name: str) -> None:
+    def delete_collection(self, name: str, system: bool = False) -> None:
         self._collections.pop(name, None)
 
     def has_graph(self, name: str) -> bool:

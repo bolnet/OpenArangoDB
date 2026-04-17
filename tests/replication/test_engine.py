@@ -10,7 +10,7 @@ from open_arangodb.models import Memory, ReplicationConfig, ReplicationStatus
 from open_arangodb.replication.engine import ReplicationEngine
 
 try:
-    from tests.conftest import MockDatabase
+    from conftest import MockDatabase
 except ImportError:
     pass
 
@@ -28,7 +28,7 @@ def source_cdc(source_db) -> CDCEngine:
 
 @pytest.fixture
 def target_db() -> MockDatabase:
-    from tests.conftest import MockDatabase
+    from conftest import MockDatabase
 
     return MockDatabase("target_db")
 

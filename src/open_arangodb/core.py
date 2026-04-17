@@ -203,8 +203,8 @@ class ArangoDB:
 
     # ── Read Operations ──
 
-    def get(self, memory_id: str) -> Memory | None:
-        return self._store.get(memory_id)
+    def get(self, memory_id: str, include_deleted: bool = False) -> Memory | None:
+        return self._store.get(memory_id, include_deleted=include_deleted)
 
     def search(
         self,
@@ -224,8 +224,11 @@ class ArangoDB:
         entity: str | None = None,
         scope: AgentScope | None = None,
         limit: int = 50,
+        include_deleted: bool = False,
     ) -> list[Memory]:
-        return self._store.list_memories(entity=entity, scope=scope, limit=limit)
+        return self._store.list_memories(
+            entity=entity, scope=scope, limit=limit, include_deleted=include_deleted
+        )
 
     # ── Embedding ──
 
