@@ -22,9 +22,9 @@ class GraphManager:
         """Create a named graph. If smart_attribute is set, add partition index."""
         edge_defs = []
         for ed in config.edge_definitions:
-            # Ensure edge collection exists
+            # Ensure edge collection exists (must be created as edge=True)
             if not self._db.has_collection(ed.collection):
-                self._db.create_collection(ed.collection)
+                self._db.create_collection(ed.collection, edge=True)
 
             # Ensure vertex collections exist
             for vc in ed.from_vertex_collections:
@@ -135,7 +135,7 @@ class GraphManager:
     ) -> TraversalResult:
         """Walk edges iteratively from the start vertex."""
         edge_col = self._db.collection(edge_collection)
-        all_edges = edge_col.all() if hasattr(edge_col, "all") else []
+        all_edges = list(edge_col.all()) if hasattr(edge_col, "all") else []
 
         visited_vertices: dict[str, dict[str, Any]] = {}
         collected_edges: list[dict[str, Any]] = []
@@ -207,7 +207,7 @@ class GraphManager:
     ) -> list[dict[str, Any]]:
         """Get immediate neighbors of a vertex."""
         edge_col = self._db.collection(edge_collection)
-        all_edges = edge_col.all() if hasattr(edge_col, "all") else []
+        all_edges = list(edge_col.all()) if hasattr(edge_col, "all") else []
 
         neighbor_ids: list[str] = []
         for edge in all_edges:

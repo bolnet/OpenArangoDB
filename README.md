@@ -342,7 +342,11 @@ db = ArangoDB(host="http://localhost:8529", database="myapp", graph_enabled=True
 config = GraphConfig(
     name="knowledge",
     edge_definitions=[
-        EdgeDefinition(collection="edges", from_collections=["nodes"], to_collections=["nodes"]),
+        EdgeDefinition(
+            collection="edges",
+            from_vertex_collections=["nodes"],
+            to_vertex_collections=["nodes"],
+        ),
     ],
 )
 db.create_graph(config)
@@ -401,7 +405,7 @@ print(result.path, result.size_bytes)
 # Install with dev dependencies
 pip install "OpenArangoDB[dev]"
 
-# Run all 253 tests
+# Run all tests (239 collected)
 pytest tests/ -v
 
 # Run with coverage report
