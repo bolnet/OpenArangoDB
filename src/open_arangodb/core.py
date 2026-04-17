@@ -9,6 +9,7 @@ from arango import ArangoClient
 
 from open_arangodb.audit.logger import AuditLogger
 from open_arangodb.cdc.engine import CDCEngine
+from open_arangodb.engine import OpenArangoDBCore
 from open_arangodb.events.bus import EventBus, InProcessBus
 from open_arangodb.models import (
     AgentScope,
@@ -57,14 +58,21 @@ class ArangoDB:
         satellite_configs: list[Any] | None = None,
         replication_config: Any = None,
         ldap_config: Any = None,
+        engine: OpenArangoDBCore | None = None,
     ) -> None:
-        self._client = ArangoClient(hosts=host)
-        self._sys_db = self._client.db("_system", username=username, password=password)
-
-        if not self._sys_db.has_database(database):
-            self._sys_db.create_database(database)
-
-        self._db = self._client.db(database, username=username, password=password)
+        if engine is None:
+            client = ArangoClient(hosts=host)
+            engine = OpenArangoDBCore(
+                host=host,
+                database=database,
+                username=username,
+                password=password,
+                client=client,
+            )
+        self._engine = engine
+        self._client = engine.client
+        self._sys_db = engine.sys_db
+        self._db = engine.db
         self._embedding_model = embedding_model
 
         # Core components
@@ -142,6 +150,11 @@ class ArangoDB:
     def db(self):
         """Direct access to the underlying ArangoDB database."""
         return self._db
+
+    @property
+    def engine(self) -> OpenArangoDBCore:
+        """The core engine adapter backing this gateway."""
+        return self._engine
 
     @property
     def events(self) -> EventBus:
@@ -354,3 +367,4 @@ class ArangoDB:
             sat.stop()
         if self._replication:
             self._replication.stop()
+        self._engine.close()

@@ -3,6 +3,7 @@
 __version__ = "0.1.0"
 
 from open_arangodb.core import ArangoDB
+from open_arangodb.engine import OpenArangoDBCore
 from open_arangodb.models import (
     AgentScope,
     AuthResult,
@@ -43,6 +44,7 @@ __all__ = [
     "GraphConfig",
     "LDAPConfig",
     "Memory",
+    "OpenArangoDBCore",
     "PartitionKey",
     "ReplicationConfig",
     "RestoreConfig",
