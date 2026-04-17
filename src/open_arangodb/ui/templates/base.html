@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}OpenArangoDB · Signal Room{% endblock %}</title>
+  <link rel="stylesheet" href="/ui/static/app.css?v=3">
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <div class="stage-vignette" aria-hidden="true"></div>
+  <div class="stage-rings" aria-hidden="true">
+    <svg viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet">
+      <g fill="none" stroke="currentColor" stroke-width="0.6">
+        <circle cx="400" cy="400" r="120"/>
+        <circle cx="400" cy="400" r="200"/>
+        <circle cx="400" cy="400" r="290"/>
+        <circle cx="400" cy="400" r="380"/>
+        <line x1="20" y1="400" x2="780" y2="400"/>
+        <line x1="400" y1="20" x2="400" y2="780"/>
+      </g>
+    </svg>
+  </div>
+
+  <header class="chrome" role="banner">
+    <a class="mark" href="/ui/overview">
+      <span class="sigil" aria-hidden="true">
+        <svg viewBox="0 0 64 64">
+          <circle class="sigil__ring sigil__ring--g" cx="26" cy="26" r="18"/>
+          <circle class="sigil__ring sigil__ring--v" cx="38" cy="26" r="18"/>
+          <circle class="sigil__ring sigil__ring--a" cx="32" cy="40" r="18"/>
+          <circle class="sigil__dot" cx="32" cy="32" r="1.4"/>
+        </svg>
+      </span>
+      <span class="mark__label">
+        <span class="mark__word">Open<em>Arango</em>DB</span>
+        <span class="mark__sub">SIGNAL&nbsp;ROOM · multi-modal read console</span>
+      </span>
+    </a>
+
+    <nav class="chrome__nav" role="navigation">
+      <a class="tab" href="/ui/overview"  {% if request.url.path.startswith('/ui/overview')  %}aria-current="page"{% endif %}><span class="tab__n">00</span><span class="tab__w">Overview</span></a>
+      <a class="tab" href="/ui/memories"  {% if request.url.path.startswith('/ui/memories')  %}aria-current="page"{% endif %}><span class="tab__n">01</span><span class="tab__w">Memories</span></a>
+      <a class="tab" href="/ui/retrieval" {% if request.url.path.startswith('/ui/retrieval') %}aria-current="page"{% endif %}><span class="tab__n">02</span><span class="tab__w">Retrieval</span></a>
+      <a class="tab" href="/ui/vector"    {% if request.url.path.startswith('/ui/vector')    %}aria-current="page"{% endif %}><span class="tab__n">03</span><span class="tab__w">Vector</span></a>
+      <a class="tab" href="/ui/graph"     {% if request.url.path.startswith('/ui/graph')     %}aria-current="page"{% endif %}><span class="tab__n">04</span><span class="tab__w">Graph</span></a>
+      <a class="tab" href="/ui/temporal"  {% if request.url.path.startswith('/ui/temporal')  %}aria-current="page"{% endif %}><span class="tab__n">05</span><span class="tab__w">Temporal</span></a>
+      <a class="tab" href="/ui/cdc"       {% if request.url.path.startswith('/ui/cdc')       %}aria-current="page"{% endif %}><span class="tab__n">06</span><span class="tab__w">CDC</span></a>
+      <a class="tab" href="/ui/audit"     {% if request.url.path.startswith('/ui/audit')     %}aria-current="page"{% endif %}><span class="tab__n">07</span><span class="tab__w">Audit</span></a>
+      <a class="tab" href="/ui/ops"       {% if request.url.path.startswith('/ui/ops')       %}aria-current="page"{% endif %}><span class="tab__n">08</span><span class="tab__w">Ops</span></a>
+    </nav>
+
+    <aside class="chrome__ident">
+      <div class="pill pill--live"><span class="pulse"></span>LIVE · READ-ONLY</div>
+      <div class="ident__row"><span class="ident__k">db</span><span class="ident__v">{{ database }}</span></div>
+      <div class="ident__row"><span class="ident__k">engine</span><span class="ident__v">OpenArangoDBCore</span></div>
+      <div class="ident__row"><span class="ident__k">host</span><span class="ident__v mono">{{ host }}</span></div>
+      <div class="ident__metrics">
+        <span><b>{{ stats.memories_total or 0 }}</b>docs</span>
+        <span><b>{{ stats.memories_active or 0 }}</b>active</span>
+        <span><b>{{ stats.cdc_events or 0 }}</b>cdc</span>
+      </div>
+    </aside>
+  </header>
+
+  <main class="stage">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="ticker" role="contentinfo">
+    <div class="ticker__cell"><span class="pulse pulse--sm"></span>&nbsp;sweep · {{ stats.memories_active or 0 }} active targets</div>
+    <div class="ticker__cell ticker__mid">OPENARANGODB · GRAPH · VECTOR · AQL · FUSED THROUGH RRF · ONE ENGINE, THREE MODALITIES</div>
+    <div class="ticker__cell"><span class="k">audit</span>&nbsp;{{ stats.audit_events or 0 }}&nbsp;·&nbsp;<span class="k">sats</span>&nbsp;{{ stats.satellites or 0 }}</div>
+  </footer>
+
+  <script src="/ui/static/app.js" defer></script>
+  {% block body_extra %}{% endblock %}
+</body>
+</html>

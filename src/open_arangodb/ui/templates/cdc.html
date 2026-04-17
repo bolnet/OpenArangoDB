@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}CDC · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">06 · Change data capture</div>
+<h1 class="h-section">Revision <em>stream.</em></h1>
+<p class="hero__blurb" style="max-width:72ch">
+  Every mutation is recorded as an append-only change event. Replay from any
+  revision to reconstruct downstream state.
+</p>
+<div class="stream" style="margin-top:20px">
+  <table class="table">
+    <thead><tr><th>rev</th><th>op</th><th>memory</th><th>timestamp</th></tr></thead>
+    <tbody>
+      {% for e in events %}
+      <tr>
+        <td class="mono num">{{ e.rev }}</td>
+        <td><span class="op-tag op-tag--{{ e.op }}">{{ e.op }}</span></td>
+        <td class="mono">{{ e.memory_id }}</td>
+        <td class="mono dim">{{ e.timestamp }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="dim" style="text-align:center; padding:22px">no events yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

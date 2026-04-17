@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Ops · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">08 · Control plane</div>
+<h1 class="h-section">Operations <em>panel.</em></h1>
+
+<div class="ops-grid" style="margin-top:22px">
+
+  <article class="ops-card {% if satellites %}ops-card--on{% else %}ops-card--off{% endif %}">
+    <div class="overline overline--sodium">Satellite cache</div>
+    <h3 class="h-card">Edge-replicated read cache</h3>
+    <div class="ops-card__state"><span class="dot"></span>{{ "online" if satellites else "dormant" }}</div>
+    <div class="sat-bars">
+      {% for s in satellites %}
+      {% set total = (s.hits + s.misses) or 1 %}
+      <div class="sat-bar">
+        <span class="sat-bar__name">{{ s.name }}</span>
+        <span class="sat-bar__meter"><span style="width: {{ (100 * s.hits / total)|round(0) }}%"></span></span>
+        <span class="sat-bar__num">{{ s.hits }} / {{ s.hits + s.misses }}</span>
+      </div>
+      {% else %}
+      <span class="chip chip--bone">no satellites configured</span>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="ops-card {% if encryption and encryption.encrypted %}ops-card--on{% else %}ops-card--off{% endif %}">
+    <div class="overline">Encryption at rest</div>
+    <h3 class="h-card">Data directory</h3>
+    <div class="ops-card__state"><span class="dot"></span>{{ "encrypted" if (encryption and encryption.encrypted) else "unverified" }}</div>
+    {% if encryption %}
+    <p class="card__blurb">method · <span class="mono">{{ encryption.method or 'n/a' }}</span></p>
+    <p class="card__blurb" style="color:var(--bone-3)">{{ encryption.note or 'OS-level check completed.' }}</p>
+    {% else %}
+    <p class="card__blurb">Encryption check module not enabled.</p>
+    {% endif %}
+  </article>
+
+  <article class="ops-card {% if backup_enabled %}ops-card--on{% else %}ops-card--off{% endif %}">
+    <div class="overline overline--sodium">Backup</div>
+    <h3 class="h-card">arangodump / arangorestore</h3>
+    <div class="ops-card__state"><span class="dot"></span>{{ "ready" if backup_enabled else "dormant" }}</div>
+    <p class="card__blurb">Invoke <span class="mono">db.create_backup(BackupConfig(output_dir=…))</span> to snapshot the database.</p>
+  </article>
+
+  <article class="ops-card {% if replication_enabled %}ops-card--on{% else %}ops-card--off{% endif %}">
+    <div class="overline">Replication</div>
+    <h3 class="h-card">Secondary targets</h3>
+    <div class="ops-card__state"><span class="dot"></span>{{ "streaming" if replication_enabled else "dormant" }}</div>
+    <p class="card__blurb">Configure a secondary target to replicate writes — see <span class="mono">open_arangodb.replication.engine</span>.</p>
+  </article>
+
+</div>
+{% endblock %}

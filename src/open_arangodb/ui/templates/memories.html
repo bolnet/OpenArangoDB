@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Memories · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">01 · Records</div>
+<h1 class="h-section">Document <em>store.</em></h1>
+
+<form class="filters" method="get">
+  <span class="filters__label">search</span>
+  <input class="field" type="text" name="q" placeholder="content or id…" value="{{ filters.q }}">
+  <span class="filters__label">entity</span>
+  <input class="field" type="text" name="entity" placeholder="Alice, Orion…" value="{{ filters.entity }}">
+  <span class="filters__label">status</span>
+  <select class="field" name="status">
+    <option value=""           {% if not filters.status %}selected{% endif %}>any</option>
+    <option value="active"     {% if filters.status == 'active' %}selected{% endif %}>active</option>
+    <option value="superseded" {% if filters.status == 'superseded' %}selected{% endif %}>superseded</option>
+    <option value="deleted"    {% if filters.status == 'deleted' %}selected{% endif %}>deleted</option>
+  </select>
+  <button class="button" type="submit">Sweep</button>
+</form>
+
+{% if memories %}
+<div class="record-grid">
+  {% for m in memories %}
+  <a class="record" href="/ui/memories/{{ m.id }}">
+    <div class="record__head">
+      <span class="record__id">{{ m.short_id }}</span>
+      <span class="record__status record__status--{{ m.status }}">{{ m.status }}</span>
+    </div>
+    <div class="record__body">
+      {% if m.entity %}<span class="record__entity">{{ m.entity }}.</span>{% endif %}{{ m.excerpt }}
+    </div>
+    {% if m.tags %}
+    <div class="record__tags">
+      {% for t in m.tags %}<span class="chip chip--bone">{{ t }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="hero__blurb">No records match. Try widening the filters or pick an entity.</p>
+{% endif %}
+{% endblock %}

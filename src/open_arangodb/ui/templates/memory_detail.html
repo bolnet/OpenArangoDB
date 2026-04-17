@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ m.short_id }} · Memory · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">01 · Record · {{ m.short_id }}</div>
+<h1 class="h-section">{% if m.entity %}<em>{{ m.entity }}.</em>{% endif %} {{ m.excerpt }}</h1>
+
+<section class="capabilities" style="margin-top:22px">
+  <article class="card card--xo">
+    <span class="card__corner">identity</span>
+    <h3 class="h-card">Identity</h3>
+    <div class="card__foot" style="border-top:none; padding-top:6px; margin-top:12px; flex-direction:column; align-items:stretch; gap:6px;">
+      <span><span class="k">id</span>&nbsp;<span class="ident__v mono">{{ m.id }}</span></span>
+      <span><span class="k">status</span>&nbsp;{{ m.status }}</span>
+      <span><span class="k">entity</span>&nbsp;{{ m.entity or '—' }}</span>
+      <span><span class="k">category</span>&nbsp;{{ m.category or '—' }}</span>
+    </div>
+  </article>
+  <article class="card card--xo">
+    <span class="card__corner">tags</span>
+    <h3 class="h-card">Tags</h3>
+    <div class="record__tags" style="margin-top:14px">
+      {% for t in m.tags %}<span class="chip">{{ t }}</span>{% else %}<span class="chip chip--bone">untagged</span>{% endfor %}
+    </div>
+  </article>
+  <article class="card card--xo">
+    <span class="card__corner">body</span>
+    <h3 class="h-card">Content</h3>
+    <p class="card__blurb">{{ m.content }}</p>
+  </article>
+</section>
+
+{% if chain %}
+<section style="margin-top:40px">
+  <div class="overline overline--sodium">Supersession · chain length {{ chain|length }}</div>
+  <h2 class="h-section">Temporal <em>trail.</em></h2>
+  <div class="chain">
+    {% for c in chain %}
+      <div class="chain__node {% if loop.last %}chain__node--current{% endif %}">
+        <span class="chain__id">{{ c.short_id }}</span>
+        <div class="chain__body">{% if c.entity %}<em style="color:var(--sodium-hot)">{{ c.entity }}.</em> {% endif %}{{ c.excerpt }}</div>
+      </div>
+      {% if not loop.last %}<div class="chain__arrow">&#9654;</div>{% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<p><a class="button" href="/ui/memories">&larr; Back to records</a></p>
+{% endblock %}

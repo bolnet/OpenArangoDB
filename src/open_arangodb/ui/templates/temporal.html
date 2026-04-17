@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Temporal · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">05 · Continuity</div>
+<h1 class="h-section">Supersession <em>chains.</em></h1>
+<p class="hero__blurb" style="max-width:72ch">
+  Whenever a record supersedes another, the chain is preserved. Walk from any
+  memory to its current tip; detect contradictions across active memories for
+  the same entity.
+</p>
+
+{% if chains %}
+<section style="margin-top:20px">
+  {% for ch in chains %}
+  <div class="overline">chain · {{ ch.entity or '—' }} · tip {{ ch.current_id[:12] }}</div>
+  <div class="chain">
+    {% for mid in ch.ids %}
+      <div class="chain__node {% if mid == ch.current_id %}chain__node--current{% endif %}">
+        <span class="chain__id">{{ mid[:14] }}</span>
+        <div class="chain__body">{% if mid == ch.current_id %}<em style="color:var(--phosphor)">current</em>{% else %}<span style="color:var(--bone-3)">superseded</span>{% endif %}</div>
+      </div>
+      {% if not loop.last %}<div class="chain__arrow">&#9654;</div>{% endif %}
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+{% else %}
+<p class="hero__blurb">No supersession chains yet.</p>
+{% endif %}
+
+<section style="margin-top:30px">
+  <div class="overline overline--sodium">Contradictions</div>
+  <h2 class="h-section">Conflict <em>scan.</em></h2>
+  <form class="filters" method="get" style="margin-top:10px">
+    <span class="filters__label">entity</span>
+    <input class="field" type="text" name="entity" placeholder="Alice" value="{{ entity_q }}">
+    <button class="button button--sodium" type="submit">Scan</button>
+  </form>
+  {% if contradictions %}
+  <table class="table" style="margin-top:18px">
+    <thead><tr><th>Memory A</th><th>Memory B</th><th>Reason</th></tr></thead>
+    <tbody>
+      {% for c in contradictions %}
+      <tr><td class="mono">{{ c.a }}</td><td class="mono">{{ c.b }}</td><td class="dim">{{ c.reason or '—' }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% elif entity_q %}
+  <p class="hero__blurb">No contradictions for <em>{{ entity_q }}</em>.</p>
+  {% endif %}
+</section>
+{% endblock %}
