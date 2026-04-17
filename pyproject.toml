@@ -31,12 +31,20 @@ events-redis = ["redis>=5.0"]
 events-nats = ["nats-py>=2.0"]
 mcp = ["mcp>=1.0"]
 auth = ["ldap3>=2.9"]
+ui = [
+    "starlette>=0.37",
+    "jinja2>=3.1",
+    "uvicorn[standard]>=0.27",
+]
 all = [
     "sentence-transformers>=2.2",
     "redis>=5.0",
     "nats-py>=2.0",
     "mcp>=1.0",
     "ldap3>=2.9",
+    "starlette>=0.37",
+    "jinja2>=3.1",
+    "uvicorn[standard]>=0.27",
 ]
 dev = [
     "pytest>=8.0",
@@ -49,6 +57,7 @@ dev = [
 [project.scripts]
 openarangodb = "open_arangodb.cli:main"
 openarangodb-mcp = "open_arangodb.mcp.__main__:main"
+openarangodb-ui = "open_arangodb.ui.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/bolnet/OpenArangoDB"

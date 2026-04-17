@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Overview · OpenArangoDB{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero__title">
+    <div class="overline">Bulletin · {{ database }}</div>
+    <h1 class="h-display">One <em>engine</em>,<br><span class="thin">three modalities.</span></h1>
+    <p class="hero__blurb">
+      OpenArangoDB binds graph traversal, dense vector retrieval, and AQL document search into
+      a single read-plane — then fuses them through RRF. The console below is a read-only window
+      onto the live store: capabilities, records, changes, audits, and ops.
+    </p>
+  </div>
+  <div class="hero__meta">
+    <div class="overline overline--sodium">Modalities</div>
+    <div class="hero__triad">
+      <div class="triad triad--g"><span class="triad__n">α · graph</span><div class="triad__name">Graph</div><p class="triad__caption">Named graphs, edges, parallel traversal.</p></div>
+      <div class="triad triad--v"><span class="triad__n">β · vector</span><div class="triad__name">Vector</div><p class="triad__caption">Dense embeddings with cosine search.</p></div>
+      <div class="triad triad--a"><span class="triad__n">γ · aql</span><div class="triad__name">AQL</div><p class="triad__caption">Document collections with filters, temporal.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="kpis">
+  <div class="kpi"><span class="kpi__label">Records on disk</span><span class="kpi__value">{{ stats.memories_total or 0 }}</span><span class="kpi__unit">docs</span></div>
+  <div class="kpi"><span class="kpi__label">Active</span><span class="kpi__value">{{ stats.memories_active or 0 }}</span><span class="kpi__unit">live</span></div>
+  <div class="kpi kpi--sodium"><span class="kpi__label">CDC events</span><span class="kpi__value">{{ stats.cdc_events or 0 }}</span><span class="kpi__unit">rev</span></div>
+  <div class="kpi kpi--bone"><span class="kpi__label">Audit entries</span><span class="kpi__value">{{ stats.audit_events or 0 }}</span><span class="kpi__unit">logged</span></div>
+</section>
+
+<section>
+  <div class="overline">Capabilities · wired through OpenArangoDBCore</div>
+  <h2 class="h-section">Twelve doors, <em>one room.</em></h2>
+  <div class="capabilities" style="margin-top:20px">
+    {% for c in capabilities %}
+    <article class="cap {% if c.enabled %}cap--on{% else %}cap--off{% endif %}">
+      <span class="cap__idx">{{ "%02d"|format(loop.index) }} / 12</span>
+      <div class="overline overline--bone">{{ c.key }}</div>
+      <h3 class="cap__title">{{ c.name }}</h3>
+      <p class="cap__blurb">{{ c.blurb }}</p>
+      <div class="cap__foot">
+        <span class="cap__status"><span class="dot"></span>{{ "online" if c.enabled else "dormant" }}</span>
+        <span>{{ "enabled" if c.enabled else "—" }}</span>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

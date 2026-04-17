@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Vector · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">03 · Dense</div>
+<h1 class="h-section">Vector <em>search.</em></h1>
+<p class="hero__blurb" style="max-width:72ch">
+  Cosine similarity over BGE-M3 (default) embeddings stored alongside each document.
+  Scores are normalized to [0, 1]; the bar visualizes the waterfall falloff.
+</p>
+
+<form class="filters" method="get" style="margin-top:18px">
+  <span class="filters__label">query</span>
+  <input class="field" type="text" name="q" placeholder="semantic query…" value="{{ query }}" style="min-width:340px">
+  <span class="filters__label">limit</span>
+  <input class="field" type="number" name="limit" value="{{ limit }}" min="1" max="50" style="width:90px">
+  <button class="button" type="submit">Search</button>
+</form>
+
+{% if results %}
+<div class="waterfall" style="margin-top:22px">
+  {% for r in results %}
+  <div class="waterfall__row">
+    <span class="waterfall__rank">{{ "%02d"|format(loop.index) }}</span>
+    <div>
+      <div class="waterfall__body">{{ r.content }}</div>
+      <div class="waterfall__bar"><span style="width: {{ (r.score * 100)|round(0) }}%"></span></div>
+    </div>
+    <div class="waterfall__score">{{ "%.4f"|format(r.score) }}<br><small style="color:var(--bone-4)">{{ r.memory_id[:10] }}</small></div>
+  </div>
+  {% endfor %}
+</div>
+{% elif query %}
+<p class="hero__blurb">No vectors matched. Try rephrasing.</p>
+{% else %}
+<p class="hero__blurb">Enter a phrase to see nearest neighbors.</p>
+{% endif %}
+{% endblock %}

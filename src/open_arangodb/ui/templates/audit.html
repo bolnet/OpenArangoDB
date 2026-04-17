@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Audit · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">07 · Immutable ledger</div>
+<h1 class="h-section">Audit <em>log.</em></h1>
+<p class="hero__blurb" style="max-width:72ch">
+  A tamper-evident record of every write. Compliance teams query this table;
+  developers use it to reconstruct who changed what and when.
+</p>
+<div class="stream" style="margin-top:20px">
+  <table class="table">
+    <thead><tr><th>op</th><th>collection</th><th>document</th><th>agent</th><th>timestamp</th></tr></thead>
+    <tbody>
+      {% for e in events %}
+      <tr>
+        <td><span class="op-tag op-tag--{{ e.op }}">{{ e.op }}</span></td>
+        <td class="mono">{{ e.collection }}</td>
+        <td class="mono">{{ e.document_id }}</td>
+        <td class="dim">{{ e.agent_id or '—' }}</td>
+        <td class="mono dim">{{ e.timestamp }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="dim" style="text-align:center; padding:22px">no audit entries yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

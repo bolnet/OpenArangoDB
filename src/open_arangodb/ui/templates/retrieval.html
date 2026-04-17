@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Retrieval · OpenArangoDB{% endblock %}
+{% block content %}
+<div class="overline">02 · Fusion</div>
+<h1 class="h-section">Multi-layer <em>retrieval.</em></h1>
+<p class="hero__blurb" style="max-width:72ch">
+  Each query fans out across four ranked layers — exact key, tag overlap, semantic vector,
+  and temporal. Results are then fused via Reciprocal Rank Fusion so the layer a document
+  came from is preserved alongside its RRF score.
+</p>
+
+<section class="retrieval" style="margin-top:24px">
+  <form class="retrieval__form" method="get">
+    <label class="overline">Query</label>
+    <input class="field" type="text" name="q" placeholder="“Alice role change”" value="{{ query }}">
+    <label class="overline">Entity · optional</label>
+    <input class="field" type="text" name="entity" placeholder="Alice" value="{{ entity }}">
+    <label class="overline">Tags · comma-sep</label>
+    <input class="field" type="text" name="tags" placeholder="pets,cats" value="{{ tags }}">
+    <label class="overline overline--sodium">Layers</label>
+    <div class="layer-toggles">
+      {% for l in all_layers %}
+      <label class="layer-toggle">
+        <input type="checkbox" name="layer" value="{{ l }}" {% if l in layers %}checked{% endif %}>
+        <span>{{ l }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <button class="button" type="submit">Fuse</button>
+  </form>
+
+  <div>
+    <div class="overline">Fused results · {{ results|length }}</div>
+    {% if results %}
+      {% for r in results %}
+      <div class="result-row">
+        <div class="result-row__rank">{{ "%02d"|format(loop.index) }}</div>
+        <div>
+          <div class="result-row__layer">{{ r.layer }}</div>
+          <div class="result-row__body">
+            {% if r.memory.entity %}<span class="record__entity">{{ r.memory.entity }}.</span>{% endif %}{{ r.memory.content }}
+          </div>
+          <div class="result-row__id">{{ r.memory.id }}</div>
+        </div>
+        <div class="result-row__score">
+          <span>{{ "%.4f"|format(r.score) }}</span>
+          <div class="meter" style="width:100px"><div class="meter__fill" style="width: {{ (r.score * 100)|round(0) }}%"></div></div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="hero__blurb">Type a query and hit Fuse — or leave it blank to see the empty state.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

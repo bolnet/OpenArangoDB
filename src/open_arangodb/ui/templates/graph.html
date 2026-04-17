@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Graph · OpenArangoDB{% endblock %}
+{% block head_extra %}
+<script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js" defer></script>
+{% endblock %}
+{% block content %}
+<div class="overline">04 · Topology</div>
+<h1 class="h-section">Named <em>graphs.</em></h1>
+<p class="hero__blurb" style="max-width:72ch">
+  Each registered graph exposes its vertex and edge collections to AQL traversal.
+  Below: the full vertex/edge payload fetched live from the store, rendered with
+  Cytoscape force layout.
+</p>
+
+<div class="filters" style="margin-top:18px">
+  <span class="filters__label">registered</span>
+  {% for g in graphs %}<span class="chip">{{ g }}</span>{% else %}<span class="chip chip--bone">no graphs</span>{% endfor %}
+</div>
+
+<div class="graph-stage" style="margin-top:18px">
+  <div class="graph-legend">
+    <span><i class="node"></i> vertex</span>
+    <span><i class="edge"></i> edge</span>
+  </div>
+  <div class="graph-readout" id="graph-readout">loading…</div>
+  <div id="cy"></div>
+</div>
+{% endblock %}
+{% block body_extra %}
+<script src="/ui/static/graph.js" defer></script>
+{% endblock %}
